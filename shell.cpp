@@ -25,15 +25,12 @@ static void run_command (const char *cmd)
 	if (tokens.size() == 0)
 		return;
 
-	for (auto t: tokens)
-		t.dump();
-
 	/* expand variables */
 	for (auto it = tokens.begin(); it != tokens.end(); it++)
 		it->value = var_expand_all(it->value.c_str());
 
 	std::unique_ptr<Command> to_run = shell_parse(tokens);
-to_run->dump(0);
+
 	RedirectList std_streams;
 	std_streams.add_inherit(STDIN_FILENO);
 	std_streams.add_inherit(STDOUT_FILENO);
