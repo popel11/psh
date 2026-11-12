@@ -1,0 +1,32 @@
+FILE DESCRIPTOR SAFETY
+All descriptors in the shell process have close-on-exec flag set all the time.
+Descriptors to be inherited by a sub-program only have it unset in a child
+process just before exec().
+
+EXCEPTION SAFETY:
+Reference arguments annotated as 'inval' may be in invalid state after the
+function throws. Do not use them after the throw.
+Other reference arguments are unchanged on a throw.
+
+BREAK AND CONTINUE
+I used a nasty trick - "break" and "continue" are implemented as built-ins
+that throw an exception (of type "int") that is caught in loop.cpp.
+
+MODULES (ordered roughly hierarchically, top down)
+shell.cpp - contains main()
+parse.hpp - defines important abstract classes Command and RunningCommand.
+andor.*, loop.*, pipeline.*, sequence.* - execution of the respective
+	compound command
+redir_command.* - parsing and executing redirection operators
+simple_command.* - executing one program or built-in
+parse.cpp - parses a token list into an expression tree.
+tokenize.* - break a string into a series of tokens.
+redirect.* - class that describes all file descriptor changes for a command
+builtin.hpp - built-in commands
+variables.hpp - assignment and expansion of variables, including $_PATH
+
+exec.hpp - execution of a program with redirections
+input.hpp - reading stdin
+regex.hpp - a wrapper around regexec(3) that doesn't belong anywhere else
+signal.hpp - handling of SIGINT (Ctrl+C)
+types.hpp - defines types and constants used in many modules
