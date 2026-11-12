@@ -73,7 +73,7 @@ static std::unique_ptr<RunningCommand> run_in_subshell (const Command *what,
 			code = what->run(redirs)->collect();
 		} catch (const char *err){
 			fprintf(stderr, "psh: ERROR: %s.\n", err);
-			exit(EXIT_SYS_ERROR);
+			exit(EXIT_SHELL_ERROR);
 		}
 		exit(code);
 		break;

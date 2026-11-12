@@ -141,14 +141,18 @@ static std::unique_ptr<Command> internal_shell_parse (
 			part_start = op_it;
 			part_start++;
 		}
-		/* there must be tokens after the last operator,
-		 * otherwise it's missing an operand */
-		if (part_start == end)
-			throw "Missing operand";
 
-		std::unique_ptr<Command> sub = internal_shell_parse(
-				part_start, end);
-		res->add_final_member(std::move(sub));
+		/* there must be tokens after the last operator, otherwise
+		 * it's missing an operand. Trailing semicolons
+		 * are fine though.*/
+		if (part_start == end && strcmp(op, REG_SEMICOLON) != 0)
+			throw "Syntax error: Missing operand";
+
+		if (part_start != end){ /* handle the last part */
+			std::unique_ptr<Command> sub = internal_shell_parse(
+					part_start, end);
+			res->add_final_member(std::move(sub));
+		}
 
 		return res;
 	}

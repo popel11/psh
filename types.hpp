@@ -14,7 +14,7 @@ typedef int fd_t; /* File descriptor */
 #define NO_PROCESS ((pid_t) -1) /* Null value of process ID */
 
 #define EXIT_SIGNALLED 130
-#define EXIT_SYS_ERROR 127
+#define EXIT_SHELL_ERROR 127
 
 /* See builtin.cpp and loop.cpp */
 #define SHELL_BREAK 0

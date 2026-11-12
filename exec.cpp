@@ -29,13 +29,13 @@ static pid_t exec_redirected (std::vector<const char*> command,
 
 		} catch (const char *err){
 			fprintf(stderr, "psh: ERROR: %s\n", err);
-			exit(EXIT_SYS_ERROR);
+			exit(EXIT_SHELL_ERROR);
 		}
 
 		execv(command[0], (char *const*) command.data());
 
 		perror("psh: execv");
-		exit(EXIT_SYS_ERROR);
+		exit(EXIT_SHELL_ERROR);
 	}
 
 	if (pid < 0)

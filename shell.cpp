@@ -25,12 +25,15 @@ static void run_command (const char *cmd)
 	if (tokens.size() == 0)
 		return;
 
+	for (auto t: tokens)
+		t.dump();
+
 	/* expand variables */
 	for (auto it = tokens.begin(); it != tokens.end(); it++)
 		it->value = var_expand_all(it->value.c_str());
 
 	std::unique_ptr<Command> to_run = shell_parse(tokens);
-
+to_run->dump(0);
 	RedirectList std_streams;
 	std_streams.add_inherit(STDIN_FILENO);
 	std_streams.add_inherit(STDOUT_FILENO);
@@ -41,10 +44,37 @@ static void run_command (const char *cmd)
 	var_set("?", to_collect->collect());
 }
 
-int main (int argc, char **argv)
+static void exec_stdin ()
 {
 	std::string command;
 
+	while (!feof(stdin)) {
+		try {
+			command = input_line();
+			run_command(command.c_str());
+		} catch (const char *error){
+			fprintf(stderr, "psh: Could not execute '%s': %s\n",
+					command.c_str(), error);
+			var_set("?", EXIT_SHELL_ERROR);
+		}
+	}
+}
+
+static void exec_file (const char *path)
+{
+	try {
+		std::string content = input_file(path);
+		run_command(content.c_str());
+
+	} catch (const char *error){
+		fprintf(stderr, "psh: error while executing %s: %s\n",
+				path, error);
+		exit(EXIT_FAILURE);
+	}
+}
+
+int main (int argc, char **argv)
+{
 	if (argc > 1 && strcmp(argv[1], "--version") == 0){
 		fprintf(stderr, "psh version " VERSION "\n");
 		fprintf(stderr, "by v.polak06@email.cz\n");
@@ -65,16 +95,10 @@ int main (int argc, char **argv)
 	SET_CLOEXEC(STDOUT_FILENO);
 	SET_CLOEXEC(STDERR_FILENO);
 
-	while (!feof(stdin)) {
-		command = input_prompted(stdin, geteuid() == 0 ? "# ": "$ ");
-		try {
-			run_command(command.c_str());
-		} catch (const char *error){
-			fprintf(stderr, "%s: Could not execute '%s': %s\n",
-					argv[0], command.c_str(), error);
-			var_set("?", 127);
-		}
-	}
+	if (argc > 1) /* a script to execute */
+		exec_file(argv[1]);
+	else
+		exec_stdin();
 
 	return 0;
 }

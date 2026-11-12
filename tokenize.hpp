@@ -62,10 +62,9 @@ extern std::list<Token> tokenize (const char *s);
  * at unwanted places */
 #define REG_SINGLE_QUOTES "'[^']*'"
 #define REG_DOUBLE_QUOTES "\"[^\"]*\""
-//#define REG_WHITESPACE "[[:blank:]]+"
 #define REG_WHITESPACE " +"
 #define REG_LOOP "->"
-#define REG_SEMICOLON ";"
+#define REG_SEMICOLON "(\r?\n|;)+"
 #define REG_ANDOR "&&|\\|\\|"
 #define REG_PIPE "\\|"
 #define REG_OPEN_BRACKET "\\{"

@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <string>
-#include <istream>
+#include <fstream>
 
 #include "input.hpp"
 
@@ -42,14 +42,14 @@ std::string input_line ()
 
 std::string input_file (const char *path)
 {
-	std::istream f(path);
+	std::ifstream f(path);
 	std::string text("");
 	int c = 0;
 
 	do {
-		f.get(c);
+		c = f.get();
 		text.push_back((char) c);
-	} while (f.rdstate() != std::ios_base::eofbit);
+	} while (c != EOF);
 
 	text.pop_back();
 	return text;

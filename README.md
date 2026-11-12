@@ -16,6 +16,11 @@ DOC.txt may help you navigate through the source.
 1. Move `restrict` to /bin and enable set-UID to root.  
 2. you may also move `psh` to /bin, but that's optional.  
 
+# Synopsis
+`psh` without arguments reads commands line-by-line from stdin.  
+`psh FILE` executes the script in FILE.
+`psh --version` prints version.
+
 # Features
 
 ## Executables
