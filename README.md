@@ -1,43 +1,46 @@
 psh -  sandboxing shell
 
-`psh` is a simple Unix shell that executes all programs under a restricted
+`psh` is a Unix shell that executes all programs under a restricted
 user account to deny them access to your files.
 
 This is first of a series of programs aiming to make malware less dangerous.
 The other programs will be psh-compatible utilites that will not interact with
 the filesystem, and rely on the shell to open any necessary files for them.
 
-This is an early version, I'll improve.
+The shell is not meant to be standard-compliant - scripts for other shells
+wouldn't work anyway. I'm planning to add the missing features that I care
+about. If you want some other feature e-mail me and I'll add it.
 
 DOC.txt may help you navigate through the source.
 
 # Installation
-0. Run `build.sh` to create executables `psh` and `restrict`.  
-1. Move `restrict` to /bin and enable set-UID to root.  
-2. you may also move `psh` to /bin, but that's optional.  
+0. Run `build.sh` to create executables `psh` and `restrict`. Alternatively,
+the ./bin-linux-x86-64 directory contains executables for x86-64 Linux.  
+1. Create a system user named `restricted` (`adduser --system restricted`)
+2. Move `restrict` to /bin (`psh` relies on it being there) and enable set-UID
+to root  
 
-# Synopsis
+# Arguments
 `psh` without arguments reads commands line-by-line from stdin.  
-`psh FILE` executes the script in FILE.
-`psh --version` prints version.
+`psh FILE` executes the script in FILE.  
+`psh --version` prints version.  
 
 # Features
 
 ## Executables
-The command `program arg1 arg2` causes a program `/bin/restricted` ro run with
-arguments `/path/to/program`, `arg1`, `arg2` (the PATH environ variable is
-used for path substitution, unless the path is already).
+The command `program arg1 arg2` causes a program `/path/to/program` to run with
+arguments `arg1`, `arg2` (the PATH environment variable is used for path
+substitution, unless the path is already absolute).
 
-If the program name is preceded with a colon (`:program args`), it will run
-as you - `/path/to/program` will run with `args`. This is used when you want
-to give full privileges to a program.
+By default, all programs are sandboxed using `/bin/restrict`.
+If you need to run the program as you, prepend colon to the program name
+(`:program args`).
 
 ## Built-in commands
-- `cd path` sets current working directory to `path`  
-- `read varname` assigns its whole standard input to the variable `varname`,
+- `cd <path>` sets current working directory to `path`  
+- `read <varname>` assigns its whole standard input to the variable `varname`,
 including whitespace.  
-- `explain topic` gives detailed information about various topics,
-from throwing knives to point of life.  
+- `explain <topic>` is a joke feature.  
 
 ## Compound commands
 Pipelines are formed by `|`, and/or lists by `&&` and `||`.
@@ -46,24 +49,27 @@ variable-sets within it do not affect the shell.
 
 ## Loops
 Loop is formed by the `->` operator: `condition -> body` (where `condition`
-and `body` are any commands or brackets).
-There is currently no "break" and "continue". Adding them probably needs a
-big refactor.
+and `body` are any commands or brackets). `break` and `continue` do exactly
+what you expect.
+
+Usin an arrow instead of `while` is partly out of laziness, but I also
+like special-character operators more that keywords.
 
 ## Brackets
 Any command may be enclosed in curly braces `{...}` to become a sub-command of
-something else. The bracket runs in the current process, there is no way to
-make a subshell.
+something else. The bracket runs in the current process (unless in a pipeline),
+there is no way to make a subshell.
 
 ## Variables
 Variables can be set using `read` (see above). When a command contains
 a dollar sign followed by a variable name (`$varname`), it is substituted for
 a variable's value, or empty string if the variable was not set.
-Names starting with an underscore refer to environment variable
-(e. g. `$_PATH` refers to an environment variable named PATH).
+Names starting with an underscore refer to environment variables
+(e. g. `$_PATH` refers to an environment variable named `PATH`).
 
 Shell operators within variables are not interpreted, the variable's value
-is always used as if quoted. This is an intentional security feature.
+is always used as if quoted. (This is an intentional security feature.)  
+Also, empty variables create an empty argument.
 
 ## Redirections
 Any command may be redirected (although brackets are often needed, as
@@ -81,9 +87,11 @@ process that way and (1) interleaving redirections with arguments seems
 useless. If you want it, just tell me.  
 
 # Future work
-- add subshell brackets  
+- add Makefile and a script for setting `/bin/restrict`
+- add subshell brackets `(...)`  
 - use libreadline  
 - add history  
+- all the TODO's in the source  
 
 # Author
 **E-mail**: v.polak06@email.cz
